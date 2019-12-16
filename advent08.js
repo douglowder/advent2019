@@ -49,3 +49,27 @@ for (let i = 0; i < layers.length; i++) {
 }
 
 console.log('Part 1: ' + layers[index][1] * layers[index][2]);
+
+const image = [];
+
+for (let j = 0; j < HEIGHT; j++) {
+  const row = [];
+  for (let i = 0; i < WIDTH; i++) {
+    let pixel = '';
+    const index = j * WIDTH + i;
+    for (let k = 0; k < layers.length; k++) {
+      if (layers[k][index + 3] === 0) {
+        pixel = ' ';
+        break;
+      } else if (layers[k][index + 3] === 1) {
+        pixel = '*';
+        break;
+      }
+    }
+    row.push(pixel);
+  }
+  image.push(row.join(''));
+}
+
+console.log('Part 2: ');
+console.log(image.join('\n'));
