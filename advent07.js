@@ -64,7 +64,7 @@ const executeOpcode = (state, pos, inp, out) => {
 const compute = (state, inp) => {
   let out = [];
   let pos = state[state.length - 1];
-  while (state[pos] !== 99 || out.length === 0) {
+  while (state[pos] !== 99 && out.length === 0) {
     pos = executeOpcode(state, pos, inp, out);
   }
   state[state.length - 1] = pos;
@@ -84,6 +84,34 @@ const amplify1 = phases => {
   while (phases.length > 0) {
     out = compute(initialState(), [phases[0], out]);
     phases.shift();
+  }
+  return out;
+};
+
+const amplify2 = phases => {
+  let states = [
+    initialState(),
+    initialState(),
+    initialState(),
+    initialState(),
+    initialState()
+  ];
+  let out = 0;
+  let index = 0;
+  let currentOut = 0;
+  while (currentOut !== -99) {
+    let inp;
+    if (phases.length > 0) {
+      inp = [phases[0], currentOut];
+      phases.shift();
+    } else {
+      inp = [currentOut];
+    }
+    currentOut = compute(states[index], inp);
+    if (currentOut !== -99) {
+      out = currentOut;
+    }
+    index = (index + 1) % 5;
   }
   return out;
 };
@@ -120,3 +148,16 @@ for (let i in allPhaseSettings) {
 }
 
 console.log('Part 1: ' + maxResult);
+
+let maxResult2 = 0;
+
+const allPhaseSettings2 = permutator([5, 6, 7, 8, 9]);
+
+for (let i in allPhaseSettings2) {
+  const result = amplify2(allPhaseSettings2[i]);
+  if (result > maxResult2) {
+    maxResult2 = result;
+  }
+}
+
+console.log('Part 2: ' + maxResult2);
