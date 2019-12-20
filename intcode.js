@@ -16,19 +16,37 @@ const initialize = input => {
 
 // evaluate a parameter
 const fetch = (computer, pos, mode) => {
+  let location;
   switch (mode) {
     case 0: // position mode
     default:
-      return computer.state[computer.state[pos]];
+      location = computer.state[pos];
+      break;
     case 1: // immediate mode
-      return computer.state[pos];
+      location = pos;
+      break;
     case 2: // relative mode
-      return computer.state[computer.rc + computer.state[pos]];
+      location = computer.rc + computer.state[pos];
+      break;
   }
+  mallocIfNeeded(computer, location);
+  return computer.state[location];
 };
 
+// store a value
 const store = (computer, pos, val) => {
+  mallocIfNeeded(computer, pos);
   computer.state[pos] = val;
+};
+
+// extend available memory if needed
+const mallocIfNeeded = (computer, pos) => {
+  while (pos > computer.state.length) {
+    const extension = [];
+    extension.length = computer.state.length;
+    extension.fill(0);
+    computer.state = [...computer.state, ...extension];
+  }
 };
 
 // execute one instruction
@@ -66,7 +84,7 @@ const executeOpcode = computer => {
       break;
     case 4:
       p1 = fetch(computer, pos + 1, mode[0]);
-      computer.out.unshift(p1);
+      computer.out.push(p1);
       pos = pos + 2;
       break;
     case 5:
@@ -99,6 +117,11 @@ const executeOpcode = computer => {
       store(computer, computer.state[pos + 3], p1 === p2 ? 1 : 0);
       pos = pos + 4;
       break;
+    case 9:
+      p1 = fetch(computer, pos + 1, mode[0]);
+      computer.rc = computer.rc + p1;
+      pos = pos + 2;
+      break;
     default:
       break;
   }
@@ -119,7 +142,7 @@ const compute = (computer, inp) => {
   if (!computer.stopOnOutput) {
     return computer.out; // return all outputs
   }
-  return computer.out.length > 0 ? computer.out[0] : -99;
+  return computer.out.length > 0 ? computer.out[computer.out.length - 1] : -99;
 };
 
 module.exports = {
