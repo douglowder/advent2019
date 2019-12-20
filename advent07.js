@@ -2,6 +2,7 @@ const fs = require('fs');
 
 const input = fs.readFileSync('./input07.txt', 'utf8');
 
+/*
 const executeOpcode = (state, pos, inp, out) => {
   const opcode = state[pos] % 100;
   const immediate = [];
@@ -78,23 +79,26 @@ const initialState = () => {
     .map(n => parseInt(n));
   return [...state, 0];
 };
+ */
+
+const intcode = require('./intcode');
 
 const amplify1 = phases => {
   let out = 0;
   while (phases.length > 0) {
-    out = compute(initialState(), [phases[0], out]);
+    out = intcode.compute(intcode.initialize(input), [phases[0], out]);
     phases.shift();
   }
   return out;
 };
 
 const amplify2 = phases => {
-  let states = [
-    initialState(),
-    initialState(),
-    initialState(),
-    initialState(),
-    initialState()
+  let computers = [
+    intcode.initialize(input),
+    intcode.initialize(input),
+    intcode.initialize(input),
+    intcode.initialize(input),
+    intcode.initialize(input)
   ];
   let out = 0;
   let index = 0;
@@ -107,7 +111,7 @@ const amplify2 = phases => {
     } else {
       inp = [currentOut];
     }
-    currentOut = compute(states[index], inp);
+    currentOut = intcode.compute(computers[index], inp);
     if (currentOut !== -99) {
       out = currentOut;
     }
