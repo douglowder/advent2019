@@ -14,7 +14,7 @@ const initialize = input => {
   };
 };
 
-// evaluate a parameter
+// derive address from parameter
 const fetch = (computer, pos, mode) => {
   let location;
   switch (mode) {
@@ -65,19 +65,33 @@ const executeOpcode = computer => {
     case 1:
       p1 = fetch(computer, pos + 1, mode[0]);
       p2 = fetch(computer, pos + 2, mode[1]);
-      store(computer, computer.state[pos + 3], p1 + p2);
+      store(
+        computer,
+        mode[2] === 2
+          ? computer.rc + computer.state[pos + 3]
+          : computer.state[pos + 3],
+        p1 + p2
+      );
       pos = pos + 4;
       break;
     case 2:
       p1 = fetch(computer, pos + 1, mode[0]);
       p2 = fetch(computer, pos + 2, mode[1]);
-      store(computer, computer.state[pos + 3], p1 * p2);
+      store(
+        computer,
+        mode[2] === 2
+          ? computer.rc + computer.state[pos + 3]
+          : computer.state[pos + 3],
+        p1 * p2
+      );
       pos = pos + 4;
       break;
     case 3:
       store(
         computer,
-        computer.state[pos + 1],
+        mode[0] === 2
+          ? computer.rc + computer.state[pos + 1]
+          : computer.state[pos + 1],
         computer.inp.length > 0 ? computer.inp.shift() : 0
       );
       pos = pos + 2;
@@ -108,13 +122,25 @@ const executeOpcode = computer => {
     case 7:
       p1 = fetch(computer, pos + 1, mode[0]);
       p2 = fetch(computer, pos + 2, mode[1]);
-      store(computer, computer.state[pos + 3], p1 < p2 ? 1 : 0);
+      store(
+        computer,
+        mode[2] === 2
+          ? computer.rc + computer.state[pos + 3]
+          : computer.state[pos + 3],
+        p1 < p2 ? 1 : 0
+      );
       pos = pos + 4;
       break;
     case 8:
       p1 = fetch(computer, pos + 1, mode[0]);
       p2 = fetch(computer, pos + 2, mode[1]);
-      store(computer, computer.state[pos + 3], p1 === p2 ? 1 : 0);
+      store(
+        computer,
+        mode[2] === 2
+          ? computer.rc + computer.state[pos + 3]
+          : computer.state[pos + 3],
+        p1 === p2 ? 1 : 0
+      );
       pos = pos + 4;
       break;
     case 9:
@@ -125,6 +151,7 @@ const executeOpcode = computer => {
     default:
       break;
   }
+  mallocIfNeeded(computer, pos);
   computer.pc = pos;
 };
 

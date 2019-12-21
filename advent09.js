@@ -11,3 +11,11 @@ for (let i = 0; i < testinputs.length; i++) {
   computer.stopOnOutput = false;
   console.log(intcode.compute(computer, []));
 }
+
+const fs = require('fs');
+
+const input = fs.readFileSync('./input09.txt', 'utf8');
+
+const computer = intcode.initialize(input);
+computer.stopOnOutput = false;
+console.log(intcode.compute(computer, [1]));
