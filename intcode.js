@@ -15,7 +15,7 @@ const initialize = input => {
 };
 
 // derive address from parameter
-const fetch = (computer, pos, mode) => {
+const address = (computer, pos, mode) => {
   let location;
   switch (mode) {
     case 0: // position mode
@@ -30,13 +30,19 @@ const fetch = (computer, pos, mode) => {
       break;
   }
   mallocIfNeeded(computer, location);
-  return computer.state[location];
+  return location;
+};
+
+// fetch a value
+const fetch = (computer, pos, mode) => {
+  const loc = address(computer, pos, mode);
+  return computer.state[loc];
 };
 
 // store a value
-const store = (computer, pos, val) => {
-  mallocIfNeeded(computer, pos);
-  computer.state[pos] = val;
+const store = (computer, pos, mode, val) => {
+  const loc = address(computer, pos, mode);
+  computer.state[loc] = val;
 };
 
 // extend available memory if needed
@@ -65,33 +71,20 @@ const executeOpcode = computer => {
     case 1:
       p1 = fetch(computer, pos + 1, mode[0]);
       p2 = fetch(computer, pos + 2, mode[1]);
-      store(
-        computer,
-        mode[2] === 2
-          ? computer.rc + computer.state[pos + 3]
-          : computer.state[pos + 3],
-        p1 + p2
-      );
+      store(computer, pos + 3, mode[2], p1 + p2);
       pos = pos + 4;
       break;
     case 2:
       p1 = fetch(computer, pos + 1, mode[0]);
       p2 = fetch(computer, pos + 2, mode[1]);
-      store(
-        computer,
-        mode[2] === 2
-          ? computer.rc + computer.state[pos + 3]
-          : computer.state[pos + 3],
-        p1 * p2
-      );
+      store(computer, pos + 3, mode[2], p1 * p2);
       pos = pos + 4;
       break;
     case 3:
       store(
         computer,
-        mode[0] === 2
-          ? computer.rc + computer.state[pos + 1]
-          : computer.state[pos + 1],
+        pos + 1,
+        mode[0],
         computer.inp.length > 0 ? computer.inp.shift() : 0
       );
       pos = pos + 2;
@@ -122,25 +115,13 @@ const executeOpcode = computer => {
     case 7:
       p1 = fetch(computer, pos + 1, mode[0]);
       p2 = fetch(computer, pos + 2, mode[1]);
-      store(
-        computer,
-        mode[2] === 2
-          ? computer.rc + computer.state[pos + 3]
-          : computer.state[pos + 3],
-        p1 < p2 ? 1 : 0
-      );
+      store(computer, pos + 3, mode[2], p1 < p2 ? 1 : 0);
       pos = pos + 4;
       break;
     case 8:
       p1 = fetch(computer, pos + 1, mode[0]);
       p2 = fetch(computer, pos + 2, mode[1]);
-      store(
-        computer,
-        mode[2] === 2
-          ? computer.rc + computer.state[pos + 3]
-          : computer.state[pos + 3],
-        p1 === p2 ? 1 : 0
-      );
+      store(computer, pos + 3, mode[2], p1 === p2 ? 1 : 0);
       pos = pos + 4;
       break;
     case 9:
