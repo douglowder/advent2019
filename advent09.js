@@ -9,7 +9,7 @@ const intcode = require('./intcode');
 for (let i = 0; i < testinputs.length; i++) {
   const computer = intcode.initialize(testinputs[i]);
   computer.stopOnOutput = false;
-  console.log(intcode.compute(computer, []));
+  console.log('Test ' + i + ': ' + intcode.compute(computer, []));
 }
 
 const fs = require('fs');
@@ -18,4 +18,7 @@ const input = fs.readFileSync('./input09.txt', 'utf8');
 
 const computer = intcode.initialize(input);
 computer.stopOnOutput = false;
-console.log(intcode.compute(computer, [1]));
+console.log('Part 1: ' + intcode.compute(computer, [1]));
+const computer2 = intcode.initialize(input);
+computer2.stopOnOutput = false;
+console.log('Part 2: ' + intcode.compute(computer2, [2]));
