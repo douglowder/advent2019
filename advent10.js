@@ -24,6 +24,9 @@ const createMap = input => {
 };
 
 const isVisible = (asteroidmap, key1, key2) => {
+  if (key1 === key2) {
+    return false;
+  }
   const [x1, y1] = key1.split('X').map(n => parseInt(n));
   const [x2, y2] = key2.split('X').map(n => parseInt(n));
   if (x1 === x2) {
@@ -77,6 +80,23 @@ const isVisible = (asteroidmap, key1, key2) => {
   }
 };
 
+const angle = (key1, key2) => {
+  const [x1, y1] = key1.split('X').map(n => parseInt(n));
+  const [x2, y2] = key2.split('X').map(n => parseInt(n));
+  if (x1 === x2) {
+    return y2 > y1 ? 180.0 : 0.0;
+  } else if (y1 === y2) {
+    return x2 > x1 ? 90.0 : 270.0;
+  } else {
+    const r = Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
+    let a = (Math.acos((y1 - y2) / r) * 180.0) / Math.PI;
+    if (x2 < x1) {
+      a = 360.0 - a;
+    }
+    return a;
+  }
+};
+
 const neighbors = (asteroidmap, key) => {
   asteroidmap.delete(key);
   let count = 0;
@@ -108,6 +128,27 @@ const bestlocation = asteroidmap => {
 
 const mymap = createMap(input);
 
-console.log(mymap.height);
+const laser = bestlocation(mymap.asteroids);
+console.log('Part 1: ' + laser.max);
 
-console.log(bestlocation(mymap.asteroids));
+let asteroidcount = 0;
+while (mymap.asteroids.size > 1) {
+  const asteroidarray = [];
+  mymap.asteroids.forEach(asteroid => {
+    if (isVisible(mymap.asteroids, laser.location, asteroid)) {
+      asteroidarray.push(asteroid);
+    }
+  });
+  asteroidarray.sort((a, b) => {
+    return angle(laser.location, a) - angle(laser.location, b);
+  });
+  const anglearray = asteroidarray.map(a => angle(laser.location, a));
+  for (let i = 0; i < asteroidarray.length; i++) {
+    const asteroid = asteroidarray[i];
+    mymap.asteroids.delete(asteroid);
+    asteroidcount = asteroidcount + 1;
+    if (asteroidcount === 200) {
+      console.log('Part 2: ' + asteroid);
+    }
+  }
+}
